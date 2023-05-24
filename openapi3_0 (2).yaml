@@ -1,0 +1,185 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Todo-list
+  license:
+    name: MIT
+  contact: 
+    email: "klaessen@todo-list.com"
+servers:
+  - url: "http://api.todo-list.com/v1"
+paths:
+  /todo-list/{list_id}:
+    get:
+      summary: Returns all Objects of a todo-list
+      parameters:
+        - name: ID
+          in: query
+          description: ID of selected list
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: JSON Object of all list items
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/List"
+        "404":
+          description: List not found
+
+    delete:
+      summary: Deletes a todo-list and all attached 
+      parameters:
+        - name: ID
+          in: query
+          description: ID of selected list
+          required: true
+          schema: 
+            type: string
+      responses:
+        "200":
+          description: Success 
+        "404":
+          description: List not found
+
+  /todo-list:
+    post:
+      summary: Creates a new todo-list
+      requestBody: 
+        content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/List"
+      responses:
+        "200":
+          description: Resturns the new todo-list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/List"
+
+  /todo-list/{list_id}/item:
+    post: 
+      summary: Creates a new list-item for the selected list
+      parameters:
+      - name: listID
+        in: query
+        description: "Todo-list item Object"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
+      responses:
+        "200":
+          description: Resturns the new todo-list item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/List"
+        "404":
+
+
+
+          description: Todo-list ID not found
+        "400":
+          description: Invalid data
+  /todo-list/{list_id}/items/{item_id}:
+    put:
+      summary:  Updates a attached item in a todo-list
+      parameters:
+      - name: listID
+        in: query
+        description: ID of selected todo-list
+        required: true
+        schema: 
+          type: string
+      - name: itemID
+        in: query
+        description: ID of selected item
+        required: true
+        schema: 
+          type: string
+      requestBody: 
+        content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+      
+      responses:
+        "200":
+          description: Resturns the new todo-list item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/List"
+        "404": 
+          description: List/Item ID not found
+        "400":
+          description: Invalid data
+    delete: 
+      summary: Deletes a single item from the specified todo-list
+      parameters:
+      - name: listID
+        in: query
+        description: ID of selected todo-list
+        required: true
+        schema: 
+          type: string
+      - name: itemID
+        in: query
+        description: ID of selected item
+        required: true
+        schema: 
+          type: string
+      responses:
+        "200":
+          description: Resturns the updated todo-list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/List"
+        "404":
+          description: Invalid data
+              
+components:
+  schemas:
+    List: # Schema name
+      type: object
+      properties:
+        id: 
+          type: string
+        list-items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Item"
+
+      example: # Object-level example
+        list-items: 
+          - id: 0
+            name: "Item0"
+            description: "desc0"
+          - id: 1
+            name: "Item1"
+            description: "desc1"
+
+    Item:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        descrption:
+          type: string
+
+      example:
+        id: 0
+        name: "Item0"
+        description: "desc0"
+
+          
+          
+      
