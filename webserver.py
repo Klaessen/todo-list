@@ -60,7 +60,10 @@ def handle_list(list_id):
     if request.method == 'GET':
         # find all todo entries for the todo list with the given id
         print('Returning todo-list...')
-        return jsonify([i for i in items if i['list'] == list_id])
+        selected_list['items'] = []
+        # add items to todo-list objecta and extract json data from json response
+        selected_list['items'].extend([jsonify(i).json for i in items if i['list'] == list_id])
+        return jsonify(selected_list)
     elif request.method == 'DELETE':
         # delete list with given id
         print('Deleting todo list...')
