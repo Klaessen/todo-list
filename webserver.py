@@ -8,8 +8,9 @@ Requirements:
 """
 
 import uuid 
+import yaml
 
-from flask import Flask, request, jsonify, abort
+from flask import Flask, request, jsonify, abort, render_template
 
 
 # initialize Flask server
@@ -44,6 +45,12 @@ def apply_cors_header(response):
     response.headers['Access-Control-Allow-Methods'] = 'GET,POST,DELETE'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
     return response
+
+@app.route('/')
+def index():
+    with open('openapi3_0.yaml', 'r') as file:
+        spec = yaml.safe_load(file)
+    return render_template('index.html', spec=spec)
 
 # define endpoint for getting and deleting existing todo lists
 @app.route('/todo-list/<list_id>', methods=['GET', 'DELETE'])

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OpenAPI Specification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .path {
+            margin-bottom: 15px;
+        }
+
+        .method {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .summary {
+            margin-bottom: 5px;
+        }
+
+        .description {
+            margin-bottom: 15px;
+        }
+
+        .code {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            padding: 10px;
+            font-family: Consolas, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>OpenAPI Specification</h1>
+    {% for path, methods in spec.paths.items() %}
+        <div class="path">
+            <strong>{{ path }}</strong>
+            {% for method, details in methods.items() %}
+                <div class="method">{{ method }}</div>
+                <div class="summary">{{ details.summary }}</div>
+                <div class="description">{{ details.description }}</div>
+                {% if details.parameters %}
+                    <div class="code">
+                        <strong>Parameters:</strong>
+                        <ul>
+                            {% for parameter in details.parameters %}
+                                <li>
+                                    <strong>Name:</strong> {{ parameter.name }}<br>
+                                    <strong>In:</strong> {{ parameter.in }}<br>
+                                    <strong>Description:</strong> {{ parameter.description }}<br>
+                                    <strong>Required:</strong> {{ parameter.required }}<br>
+                                    {% if parameter.schema %}
+                                        <strong>Schema:</strong>
+                                        {% if parameter.schema["$ref"] %}
+                                            {{ parameter.schema["$ref"].split("/")[-1] }}
+                                        {% else %}
+                                            {{ parameter.schema | tojson(indent=4) }}
+                                        {% endif %}
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+                {% if details.requestBody %}
+                    <div class="code">
+                    <strong>Request Body:</strong> 
+                        {% set requestBodyContent = details.requestBody.content %}
+                        {% if 'application/json' in requestBodyContent %}
+                            <ul>
+                                <li>
+                                    <strong>Content:</strong>
+                                    <ul>
+                                        <li>
+                                            <strong>application/json:</strong>
+                                            <ul>
+                                                {% set requestBodySchema = requestBodyContent['application/json'].schema %}
+                                                {% if '$ref' in requestBodySchema %}
+                                                    <li>
+                                                        <strong>Schema:</strong>
+                                                        {{ requestBodySchema['$ref'].split("/")[-1] }}
+                                                    </li>
+                                                {% else %}
+                                                    {% for prop, propDetails in requestBodySchema.properties.items() %}
+                                                        <li>
+                                                            <strong>{{ prop }}:</strong>
+                                                            {{ propDetails.type }}
+                                                        </li>
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% if details.responses %}
+                <div class="code">
+                    <strong>Responses:</strong>
+                    <ul>
+                        {% for status, response in details.responses.items() %}
+                            <li>
+                                <strong>Status:</strong> {{ status }}<br>
+                                <strong>Description:</strong> {{ response.description }}
+                                {% if response.content %}
+                                    <br>
+                                    <strong>Content:</strong>
+                                    {% for contentType, contentDetails in response.content.items() %}
+                                        <br>
+                                        <strong>Content Type:</strong> {{ contentType }}<br>
+                                    {% if contentDetails.schema["$ref"] %}
+                                        <strong>Schema:</strong> {{ contentDetails.schema["$ref"].split("/")[-1] }}
+                                    {% else %}
+                                        <strong>Schema:</strong> {{ contentDetails.schema | tojson(indent=4) }}
+                                    {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    {% endfor %}
+    <div class="components">
+        <h2>Components</h2>
+        {% for component, details in spec.components.schemas.items() %}
+            <div class="code">
+                <h3>{{ component }}</h3>
+                {% if details.type %}
+                    <div class="property">
+                        <strong>Type:</strong> {{ details.type }}
+                    </div>
+                {% endif %}
+                {% if details.properties %}
+                    <div class="property">
+                        <strong>Properties:</strong>
+                        <ul>
+                            {% for prop, propDetails in details.properties.items() %}
+                                <li>
+                                    <strong>{{ prop }}:</strong> {{ propDetails.type }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+                {% if details.example %}
+                    <div class="property">
+                        <strong>Example:</strong>
+                        <pre>{{ details.example | tojson(indent=4) }}</pre>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
