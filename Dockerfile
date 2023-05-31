@@ -5,7 +5,7 @@ FROM python:3.9-slim
 WORKDIR /app
 
 # Install Flask
-RUN pip install --no-cache-dir flask
+RUN pip install --no-cache-dir flask yaml
 
 # Copy the Flask application code into the container
 COPY . .
