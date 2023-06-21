@@ -22,7 +22,7 @@ This is a simple Flask application that provides an API for managing todo lists 
 
 4. Run the Docker container:
     ```shell
-    docker run -p 5000:5000 todo-list-flask-app
+    docker run --restart=always -p 5000:5000 todo-list-flask-app
 
 5. Access the API endpoints:
 
